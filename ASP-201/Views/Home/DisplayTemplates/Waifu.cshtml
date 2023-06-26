@@ -1,0 +1,16 @@
+﻿@model ASP_201.Data.Entity.Waifu
+
+<div class="list-box-inp">
+    <img src="~/images/waifu-img/@(Model.Image + ".jpg" ?? "default-waifu.png")" alt="err" style="height:280px; width:280px;">
+    <div style="margin-left:10px; height:280px; width:490px;">
+        <span class="list-span" style="font-weight:bold; vertical-align:top; font-size:16pt;">@(Model.Name ?? "_____")
+            <span class="list-span" style="color:#283838; font-weight:lighter; vertical-align:top; font-size:15pt;">@(Model.Type ?? "Waifu")</span>
+        </span><br>
+        <hr style="width:50%; margin-left:0px;">
+        <span class="list-span">@(Model.Nickname ?? "_____")</span><br>
+        <span class="list-span">Звідки: @(Model.WhereAreFrom ?? "-")</span><br>
+        <span class="list-span">Вік: @(Model.Age.Equals(null) ? "-" : Model.Age)</span><br><br>
+        <span class="list-span">Характер: @(Model.Characteristic ?? "-")</span><br><br>
+        <span class="list-span">Опис: @(Model.Comment ?? "-")</span><br>
+    </div>
+</div>

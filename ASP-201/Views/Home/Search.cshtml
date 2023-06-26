@@ -1,0 +1,65 @@
+﻿@model ASP_201.Models.Home.PassDataModelWaifu
+@{
+    ViewData["Title"] = "Search Page";
+}
+<div>
+    <div class="container mt-5 mb-5">
+        <div class="text-center">
+            <h1 class="display-3 fw-bold text-color-2">​Диво-пошук ≧◉ᴥ◉≦</h1>
+            <div class="d-inline-flex">
+                <div class="d-grid m-lg-3">
+                    <span class="text-color-1">Ім'я</span>
+                    <input id="idNameSearch" class="input-style" type="text" />
+                </div>
+                <div class="d-grid m-lg-3">
+                    <span class="text-color-1">Вік</span>
+                    <input id="idAgeSearch" type="number" />
+                </div>
+                <div class="d-grid m-lg-3">
+                    <span class="text-color-1">Характер</span>
+                    <input id="idCharacterSearch" type="text" />
+                </div>
+                <div class="d-grid m-lg-3">
+                    <span class="text-color-1">Тип</span>
+                    <select id="idTypeSearch" name="select">
+                        <option value="value0" selected>Both</option>
+                        <option value="value1">Waifu</option>
+                        <option value="value2">Husbandu</option>
+                    </select>
+                </div>
+                <div class="d-grid m-lg-3">
+                    <input id="idButtonSearch" class="text-color-1 bg-color2" type="button" value="шукати🔎" onclick="searchButtonClick()" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Html.DisplayFor(w => w.WaifuHusbanduTable, "WaifuHusbanduTable");
+</div>
+
+<script>
+    function searchButtonClick() {
+        const name = document.getElementById("idNameSearch").value;
+        const age = document.getElementById("idAgeSearch").value;
+        const character = document.getElementById("idCharacterSearch").value;
+        const type = document.getElementById("idTypeSearch").value;
+
+        const url = `/Home/Search?name=${name}&age=${age}&character=${character}&type=${type}`;
+
+        window.fetch("/Home/Search" {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `name=${name}&age=${age}&character=${character}&type=${type}`
+        })
+            .then(response => response.text())
+            .then(data => {
+                // Handle the response data as needed
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>

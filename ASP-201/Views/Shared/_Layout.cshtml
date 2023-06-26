@@ -1,0 +1,170 @@
+﻿@using ASP_201.Data.Entity;
+@using System.Security.Claims;
+@*@model ASP_201.Models.User.ProfieModel;*@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ASP_201</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ASP-201.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="p-3 navbar navbar-expand-sm navbar-toggleable-sm navbar-light box-shadow" style="background-color:#293d3d;">
+            <div class="container-fluid" style="margin-left:40px; margin-right:5px;">
+                <b>
+                    <a class="navbar-brand text-light" style="font-size:22pt;" asp-area="" asp-controller="Home" asp-action="Index">ShukauWaifu</a>
+                </b>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 justify-content-end">
+                        <li class="nav-item" style="margin-top:auto; margin-bottom:auto;">
+                            <a class="nav-link text-light h3" style="margin-top:auto; margin-bottom:auto;" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item" style="margin-top:auto; margin-bottom:auto;">
+                            <a class="nav-link text-light h3" style="margin-top:auto; margin-bottom:auto;" asp-area="" asp-controller="Home" asp-action="Search">Seach</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            @*@if (Context.Items["authUser"] is User authUser)*@
+            @if(Context.User.Identity is not null && 
+                    Context.User.Identity.IsAuthenticated)
+            {
+                @*<span>@Context.Items["authUser"]</span> removed this*@
+                String userAvatar = Context.User.Claims.First(c => c.Type == ClaimTypes.UserData).Value;
+                if (String.IsNullOrEmpty(userAvatar)) {
+                    userAvatar = "no-avatar.png";
+                }
+
+                String userLogin = Context.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
+                String IsConfirmedStyle = "no-confirmed-ico-rama";
+                String IsConfirmedTitle = "Email not confirmed";
+                String IsUsedUserCode = Context.User.Claims.First(c => c.Type == ClaimTypes.Email).Value;
+                if (String.IsNullOrEmpty(IsUsedUserCode))
+                {
+                    IsConfirmedStyle = "confirmed-ico-rama";
+                    IsConfirmedTitle = $"{userLogin}";
+                }
+
+                <a asp-controller="User" asp-action="Profile" asp-route-id="@userLogin">
+                    <img src="~/avatars/@(userAvatar)"
+                         alt="Avka"
+                         title="@IsConfirmedTitle"
+                         style="max-width:40px; max-height:40px; border-radius:50px; margin-right:10px;"
+                         class="@(IsConfirmedStyle)">
+                </a>
+
+                <a asp-controller="User" asp-action="Logout" class="mx-3" title="Log-out">
+                    <img src="~/images/icons/log-out-icon.svg" class="rounded mx-auto d-block" alt="log-out">
+                </a>
+            }
+            else
+            {
+                <button title="Log-in" type="button" class="btn mx-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <img src="~/images/icons/log-in-icon.svg" class="rounded mx-auto d-block" alt="log-in">
+                </button>
+            }
+        </nav>
+    </header>
+    <div>
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer text-muted" style="background-color:#313f3f";>
+        <div class="container">
+            &copy; 2023 - ASP_Waifu @*- <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>*@
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form asp-controller="User" asp-action="AuthUser" method="post">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Автентифікація</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="user-login">Логін</label>
+                            <input type="text" id="user-login"
+                                   name="user-login"
+                                   class="form-control"
+                                   placeholder="Введіть свій логін" />
+                        </div>
+                        <div class="form-group">
+                            <label for="user-password">Пароль</label>
+                            <input type="password" id="user-password"
+                                   name="user-password"
+                                   class="form-control"
+                                   placeholder="Введіть свій пароль" />
+                        </div>
+                        <div id="AuthError" style="color:salmon;"></div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <a class="btn btn-info m" asp-controller="User" asp-action="Register">Реєстрація</a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                        <button type="button" class="btn btn-primary" id="login-button">Вхід</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginButton = document.getElementById("login-button");
+            if (!loginButton) throw "login - button not found";
+            loginButton.addEventListener("click", loginButtonClick);
+        });
+        function loginButtonClick() {
+            const loginInput = document.getElementById("user-login");
+            if (!loginInput) throw "user-login input not found";
+            const login = loginInput.value;
+
+            const passwordInput = document.getElementById("user-password");
+            if (!passwordInput) throw "user-password input not found";
+            const password = passwordInput.value;
+
+
+            window.fetch("/User/AuthUser", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `user-login=${login}&user-password=${password}`
+            })
+                .then(r => r.text())
+                .then(t => {
+                    console.log(t);
+                    if(t == "OK") {
+                        // оновлюємо сторінку для авторизації
+                        window.location.reload();
+                    }
+                    else {
+                        // сповіщення про некоректні дані
+                        document.getElementById("AuthError").textContent = "Неправильний логін або пароль";
+                    }
+                });
+        }
+    </script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

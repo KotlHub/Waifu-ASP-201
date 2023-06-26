@@ -1,0 +1,129 @@
+﻿@using ASP_201.Models.User
+@model RegistrationModel
+@{
+    ViewData["Title"] = "User Page";
+    var registrationValidation = ViewData["registrationValidation"] as ASP_201.Models.User.RegistrationValidationModel;
+}
+
+<div class ="text-center mt-5">
+    <h1 class="display-5 fw-bold text-color-2">Реєстрація нового користувача</h1>
+</div>
+
+<form method="post" class="p-5 fs-5 container" style="max-width:1200px;" asp-controller="User" asp-action="Register" enctype="multipart/form-data">
+    <!-- Login -->
+    <div class="form-group">
+        <label asp-for="Login">Логін</label>
+        <input type="text" asp-for="Login"
+               class="form-control @(registrationValidation is null
+                        ? ""
+                        : (registrationValidation.LoginMessage is null
+                            ? "is-valid"
+                            : "is-invalid") )" 
+               placeholder="Виберіть собі логін">
+        @if (registrationValidation?.LoginMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registrationValidation.LoginMessage
+            </div>
+        }
+    </div>
+    <!-- Password -->
+    <div class="form-group">
+        <label asp-for="Password">Password</label>
+        <input type="password" asp-for="Password"
+               class="form-control @(registrationValidation is null ? "" : (registrationValidation.PasswordMessage is null ? "is-valid" : "is-invalid") )"
+               placeholder="Введіть ваш пароль">
+        @if (registrationValidation?.PasswordMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registrationValidation.PasswordMessage
+            </div>
+        }
+    </div>
+    <!-- Password-Repeat -->
+    <div class="form-group">
+        <label asp-for="RepeatPassword">RepeatPassword</label>
+        <input type="password" asp-for="RepeatPassword"
+               class="form-control @(registrationValidation is null ? "" : (registrationValidation.PasswordMessage is null ? "is-valid" : "is-invalid") )"
+               placeholder="Повторіть ваш пароль">
+        @if (registrationValidation?.RepeatPasswordMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registrationValidation.RepeatPasswordMessage
+            </div>
+        }
+    </div>
+    <!-- Email -->
+    <div class="form-group">
+        <label asp-for="Email">Email address</label>
+        <input type="email" asp-for="Email"
+               class="form-control @(registrationValidation is null ? "" : (registrationValidation.EmailMessage is null ? "is-valid" : "is-invalid") )"
+               aria-describedby="emailHelp" placeholder="Введіть ваш Е-mail">
+        @if (registrationValidation?.EmailMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registrationValidation.EmailMessage
+            </div>
+        }
+        else
+        {
+            <small id="emailHelp" class="form-text text-muted">Без вашої згоди адреса не буде показуватись іншим користувачам.</small>
+        }
+    </div>
+    <!-- RealName -->
+    <div class="form-group">
+        <label asp-for="RealName">Pеальне ім'я</label>
+        <input type="text" asp-for="RealName"
+               class="form-control @(registrationValidation is null ? "" : (registrationValidation.RealNameMessage is null ? "is-valid" : "is-invalid") )"
+               aria-describedby="realnameHelp" placeholder="Ваше реальне ім'я">
+        @if (registrationValidation?.RealNameMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registrationValidation.RealNameMessage
+            </div>
+        }
+        else
+        {
+            <small id="realNameHelp" class="form-text text-muted">Без вашої згоди ім'я не буде показуватись іншим користувачам.</small>
+        }
+    </div>
+    <br />
+    <div class="mb-3">
+        <label asp-for="Avatar" class="form-label">Виберіть файл для аватарки</label>
+        <input asp-for="Avatar" class="form-control  @(registrationValidation is null ? "" : (registrationValidation.AvatarMessage is null ? "is-valid" : "is-invalid") )" type="file" />
+        @if (registrationValidation?.AvatarMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registrationValidation.AvatarMessage
+            </div>
+        }
+    </div>
+    <br />
+    <div class="form-check">
+        <input type="checkbox" asp-for="IsAgree"
+               class="form-check-input @(registrationValidation is null ? "" : (registrationValidation.IsAgreeMessage is null ? "is-valid" : "is-invalid") )" />
+        <label class="form-check-label" asp-for="IsAgree">Погоджуюсь слідувати правилам сайту</label>
+        @if (registrationValidation?.IsAgreeMessage is not null)
+        {
+            <div class="invalid-feedback">
+                @registrationValidation.IsAgreeMessage
+            </div>
+        }
+    </div>
+    <br />
+    <button type="submit" class="btn text-light fw-bold fs-5" style="background-color:#ae8b61; min-width:140px; min-height:45px;">Реєстрація</button>
+    <br />
+</form>
+
+@if (ViewData["registrationModel"] is ASP_201.Models.User.RegistrationModel registrationModel)
+{
+    // була передача даних
+    <p>
+        Передані дані<br />
+        @registrationModel.Login<br/>
+        @registrationModel.Password<br/>
+        @registrationModel.RepeatPassword<br/>
+        @registrationModel.Email<br/>
+        @registrationModel.RealName<br/>
+    </p>
+}

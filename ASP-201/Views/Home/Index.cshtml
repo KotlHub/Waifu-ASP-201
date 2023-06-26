@@ -1,0 +1,18 @@
+﻿@model ASP_201.Models.Home.PassDataModelWaifu
+@{
+    ViewData["Title"] = "Home Page";
+}
+<div style="background-color:#313f3f;">
+    <div class="img-fluid paralax-bg main-bg"></div>
+    <div class="align-content-center mb-10 bg-white p-5">
+        <div class="text-center m-5">
+            <h1 class="display-3 fw-bold text-color-2 m-3">Waifu & Husbandu</h1>
+            <h5 class="text-color-1 m-2">Знайди свою Вайфу або Хазбенду</h5>
+            <h6 class="text-color-1 m-3">👌(≖‿‿≖👍) Онлайн пошук своєї Вайфу або свого Хазбенду, чи всеж таки обох (✌≖‿‿≖)👍</h6>
+        </div>
+    </div>
+
+    <div class="img-fluid paralax-bg deco-bg"></div>
+
+    @Html.DisplayFor(m => m.WaifuHusbanduTable, "WaifuHusbanduTable")
+</div>

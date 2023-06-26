@@ -1,0 +1,299 @@
+﻿@using ASP_201.Data.Entity;
+@using System.Security.Claims;
+@model ASP_201.Models.User.ProfieModel
+@{
+    ViewData["Title"] = "Кабінет";
+}
+<div class="mb-5 mt-5 text-center">
+    <h1 class="display-6 text-color-2" style="font-weight:bold;">q(≧▽≦q) Профіль гарнюні (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧</h1>
+</div>
+
+<div class="img-fluid paralax-bg deco-bg2">
+
+    <div class="container profile-card-container">
+        <div class="main-body">
+            <div class="row gutters-sm">
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex flex-column align-items-center text-center">
+                                <img src="~/avatars/@(Model.Avatar)" alt="Admin" class="rounded-circle" width="200" height="200">
+                                <div class="mt-4">
+                                    <h4><b>@(Model.IsRealNamePublic ? Model.RealName : Model.Login)</b></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Повне ім'я</h6>
+                                </div>
+                                <div class="col-sm-8 text-secondary">
+                                    @if (Model.IsRealNamePublic || Model.IsPersonal)
+                                    {
+                                        <span id="realname" class="p-2">@Model.RealName</span>
+                                    }
+                                    else
+                                    {
+                                        <i>Приховано від загального перегляду</i>
+                                    }
+                                </div>
+                                <div class="col-sm-1">
+                                    @if (Model.IsPersonal)
+                                    {
+                                        <img src="~/img/pencil.svg"
+                                             role="button"
+                                             data-ref-field="realname" />
+                                    }
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">
+                                        Email
+                                        @if (Model.IsPersonal)
+                                        {
+                                            if (Model.IsEmailConfirmed)
+                                            {
+                                                <img src="~/img/person-check.svg" alt="+"
+                                                     class="mb-1 filter-color-green" />
+                                            }
+                                            else
+                                            {
+                                                <img src="~/img/person-dash.svg" alt="-"
+                                                     class="mb-1 filter-color-candy"
+                                                     role="button"
+                                                     data-bs-toggle="modal" data-bs-target="#confirmModal" />
+                                            }
+                                        }
+                                    </h6>
+                                </div>
+                                <div class="col-sm-8 text-secondary">
+                                    @if (Model.IsEmailPublic || Model.IsPersonal)
+                                    {
+                                        <span id="email" class="p-2">@Model.Email</span>
+                                    }
+                                    else
+                                    {
+                                        <i>Приховано від загального перегляду</i>
+                                    }
+                                </div>
+                                <div class="col-sm-1">
+                                    @if (Model.IsPersonal)
+                                    {
+                                        <img src="~/img/pencil.svg"
+                                             role="button"
+                                             data-ref-field="email" />
+                                    }
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Password</h6>
+                                </div>
+                                <div class="col-sm-8 text-secondary">
+                                    @if (Model.IsPersonal)
+                                    {
+                                        <span id="password" class="p-2">@Model.Password</span>
+                                    }
+                                    else
+                                    {
+                                        <i>Приховано від загального перегляду</i>
+                                    }
+                                </div>
+                                <div class="col-sm-1">
+                                    @if (Model.IsPersonal)
+                                    {
+                                        <img src="~/img/pencil.svg"
+                                             role="button"
+                                             data-ref-field="password" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-label="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="confirmModalLabel" class="modal-title">Введіть код з Email</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="confirm-addon">Код : </span>
+                        <input type="text" class="form-control"
+                               id="confirm-email-input"
+                               placeholder="Код з електронної пошти" aria-describedby="confirm-addon" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" id="resend-email-button">Надіслати новий код</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Відміна</button>
+                    <button type="button" class="btn btn-primary" id="confirm-email-button">Підтвердити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        for (let pencil of document.querySelectorAll("[data-ref-field]")) {
+            pencil.addEventListener("click", editClick);
+        }
+
+        const confirmEmailButton = document.getElementById("confirm-email-button");
+        if (!confirmEmailButton) console.log("Element not found : 'confirm-email-button'");
+        else confirmEmailButton.addEventListener("click", confirmEmailButtonClick);
+
+        const resendEmailButton = document.getElementById("resend-email-button");
+        if (!resendEmailButton) console.log("Element not found : 'resend-email-button'");
+        else resendEmailButton.addEventListener("click", resendEmailButtonClick);
+
+    });
+
+/*    function editClick(e) {
+        const targetId = e.target.getAttribute("data-ref-field");
+        // console.log(targetId);
+        // e.target - <img.../> - елемент, по якому клік, міняємо зображення
+        e.target.oldSrc = e.target.src;
+        e.target.src = "/img/save.svg";
+        // "../../img/save.svg" - відносний шлях, при зміні адреси (даної сторінки) стане не валідним
+        // "~/img/save.svg"; неправильно, ~ - символ Razor
+        // "wwwroot/img/save.svg" неправильно, wwwroot - корень сайту
+        const targetElement = document.getElementById(targetId);
+        // targetElement - <span id="realname"...>
+        targetElement.setAttribute("contenteditable", "true");
+        targetElement.focus();
+        targetElement.onblur = editingFinished;
+        targetElement.onkeydown = editingKeyDown;
+        // зберігаємо початковий стан (текст) як поле цього ж об'єкту (oldText)
+        targetElement.oldText = targetElement.innerText;
+        // знімаємо з кнопки click (відновимо після editingFinished)
+        e.target.removeEventListener("click", editClick);
+    }*/
+
+    function editClick(e) {
+        const targetId = e.target.getAttribute("data-ref-field");
+
+        e.target.oldSrc = e.target.src;
+        e.target.src = "/img/save.svg";
+        const targetElement = document.getElementById(targetId);
+
+        // targetElement - <span id="realname"...>
+        targetElement.setAttribute("contenteditable", "true");
+        targetElement.focus();
+        targetElement.onblur = editingFinished;
+        targetElement.onkeydown = editingKeyDown;
+        // зберігаємо початковий стан (текст) як поле цього ж об'єкту (oldText)
+        targetElement.oldText = targetElement.innerText;
+        // знімаємо з кнопки click (відновимо після editingFinished)
+        e.target.removeEventListener("click", editClick);
+    }
+
+    function editingFinished(e) 
+    {
+        const elem = e.target;  // e.target -- targetElement - <span id="realname"...>
+        if (elem.innerText != elem.oldText && confirm("Зберегти зміни?")) {
+            const data = {  // формуємо дані за серверною моделлю (UpdateRequestModel)
+                field: elem.id,
+                value: elem.innerText
+            };
+            const dataStr = JSON.stringify(data);  // серіалізуємо дані
+            console.log("Sending " + dataStr);
+            window.fetch("/User/Update", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: dataStr
+            }).then(r => // r.json()).then(console.log);
+            {
+                if(r.status != 200)
+                {
+                    alert("Respone unsuccessfull");
+                    return;
+                }
+                //
+                return r.json();
+            }).then( j => {
+                console.log(j);
+                if(j.status != "OK") {
+                    alert(j.data);
+                    // відновити початкові дані (відміна змін)
+                }
+                else {
+                    // продублювати зміни у всіх полях із даним параметром
+                }
+            });
+        }
+        elem.removeAttribute("contenteditable");
+        // відновлюємо зображення на кнопці-edit
+        const img = document.querySelector(`[data-ref-field=${elem.id}]`);
+        img.src = img.oldSrc;
+        // відновлюємо click на кнопці, але з затримкою
+        setTimeout(() => img.addEventListener("click", editClick), 250);
+    }
+
+    function editingKeyDown(e)
+    {
+        if (e.key == "Enter")
+            e.target.blur();
+    }
+
+    ////////////////////////////////////////////////////////////
+
+    function confirmEmailButtonClick()
+    {
+        const confirmEmailInput = document.getElementById("confirm-email-input");
+        if (!confirmEmailInput) throw "Element not found : 'confirm-email-input'";
+        const emailCode = confirmEmailInput.value;
+        if(emailCode.Length === 0) {
+            alert("Код не може бути порожним");
+            return;
+        }
+        window.fetch("/User/ConfirmEmail", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(emailCode)
+        })
+        .then(r => r.json())
+        .then(j => {
+                console.log(j);
+                console.log(emailCode);
+            if(j.status == "200") {
+                window.location.reload();
+            }
+            else {
+                alert( j.data );
+            }
+            
+        });
+    }
+
+    function resendEmailButtonClick() 
+    {
+        window.fetch("/User/ResendConfirmEmail", {
+            method: "PATCH"
+        }).then(r => r.text()).then(t => {
+            console.log(t);
+        });
+
+    }
+
+</script>
